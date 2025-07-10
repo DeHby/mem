@@ -20,7 +20,8 @@
 #ifndef MEM_MACROS_BRICK_H
 #define MEM_MACROS_BRICK_H
 
-#include "init_function.h"
+#include <mem/utils/init_function.h>
+
 #include "mem.h"
 
 #define mem_decl_extern(TYPE, NAME) typename std::add_lvalue_reference<TYPE>::type NAME

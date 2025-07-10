@@ -20,7 +20,8 @@
 #ifndef MEM_BRICK_H
 #define MEM_BRICK_H
 
-#include "defines.h"
+#include <mem/access/local_memory_accessor.h>
+#include <mem/core/defines.h>
 
 #include <cstring>
 #include <type_traits>
@@ -45,7 +46,20 @@ namespace mem
         pointer(T* address) noexcept;
 
         template <typename T, typename C>
-        pointer(T C::*address) noexcept;
+        pointer(T C::* address) noexcept;
+
+        template <typename T>
+        T read_at(std::size_t offset = 0, data_accessor& accessor = get_default_accessor()) const noexcept;
+
+        template <typename T>
+        bool write_at(
+            const T& value, std::size_t offset = 0, data_accessor& accessor = get_default_accessor()) const noexcept;
+
+        bool read(pointer dst, std::size_t size, data_accessor& accessor = get_default_accessor()) const noexcept;
+        bool write(pointer src, std::size_t size, data_accessor& accessor = get_default_accessor()) const noexcept;
+
+        bool fill(byte value, std::size_t size, data_accessor& accessor) const noexcept;
+        bool fill(byte value, std::size_t size) const noexcept;
 
         constexpr pointer add(std::size_t count) const noexcept;
         constexpr pointer sub(std::size_t count) const noexcept;
@@ -138,33 +152,6 @@ namespace mem
         operator T*() const noexcept;
     };
 
-    class region
-    {
-    public:
-        pointer start {nullptr};
-        std::size_t size {0};
-
-        constexpr region() noexcept;
-
-        constexpr region(pointer start, std::size_t size) noexcept;
-
-        constexpr bool contains(region rhs) const noexcept;
-
-        constexpr bool contains(pointer address) const noexcept;
-        constexpr bool contains(pointer start, std::size_t size) const noexcept;
-
-        template <typename T>
-        constexpr bool contains(pointer address) const noexcept;
-
-        constexpr bool operator==(region rhs) const noexcept;
-        constexpr bool operator!=(region rhs) const noexcept;
-
-        void copy(pointer source) const noexcept;
-        void fill(byte value) const noexcept;
-
-        constexpr region sub_region(pointer address) const noexcept;
-    };
-
     template <typename T>
     typename std::add_lvalue_reference<T>::type field(pointer base, std::ptrdiff_t offset = 0) noexcept;
 
@@ -191,9 +178,43 @@ namespace mem
     {}
 
     template <typename T, typename C>
-    MEM_STRONG_INLINE pointer::pointer(T C::*address) noexcept
+    MEM_STRONG_INLINE pointer::pointer(T C::* address) noexcept
         : value_(bit_cast<std::uintptr_t>(address))
     {}
+
+    template <typename T>
+    MEM_STRONG_INLINE T pointer::read_at(std::size_t offset, data_accessor& accessor) const noexcept
+    {
+        T value {};
+        accessor.read(value_ + offset, &value, sizeof(T));
+        return value;
+    }
+
+    template <typename T>
+    MEM_STRONG_INLINE bool pointer::write_at(const T& value, std::size_t offset, data_accessor& accessor) const noexcept
+    {
+        return accessor.write(value_ + offset, &value, sizeof(T));
+    }
+
+    MEM_STRONG_INLINE bool pointer::read(pointer dst, std::size_t size, data_accessor& accessor) const noexcept
+    {
+        return accessor.read(reinterpret_cast<void*>(value_), dst.any(), size);
+    }
+
+    MEM_STRONG_INLINE bool pointer::write(pointer src, std::size_t size, data_accessor& accessor) const noexcept
+    {
+        return accessor.write(reinterpret_cast<void*>(value_), src.any(), size);
+    }
+
+    MEM_STRONG_INLINE bool pointer::fill(byte value, std::size_t size, data_accessor& accessor) const noexcept
+    {
+        return accessor.fill(reinterpret_cast<void*>(value_), value, size);
+    }
+
+    MEM_STRONG_INLINE bool pointer::fill(byte value, std::size_t size) const noexcept
+    {
+        return fill(value, size, get_default_accessor());
+    }
 
     MEM_STRONG_INLINE constexpr pointer pointer::add(std::size_t count) const noexcept
     {
@@ -421,59 +442,6 @@ namespace mem
     MEM_STRONG_INLINE any_pointer::operator T*() const noexcept
     {
         return reinterpret_cast<T*>(value_);
-    }
-
-    MEM_STRONG_INLINE constexpr region::region() noexcept = default;
-
-    MEM_STRONG_INLINE constexpr region::region(pointer start_, std::size_t size_) noexcept
-        : start(start_)
-        , size(size_)
-    {}
-
-    MEM_STRONG_INLINE constexpr bool region::contains(region rhs) const noexcept
-    {
-        return (rhs.start >= start) && ((rhs.start + rhs.size) <= (start + size));
-    }
-
-    MEM_STRONG_INLINE constexpr bool region::contains(pointer address) const noexcept
-    {
-        return (address >= start) && (address < (start + size));
-    }
-
-    MEM_STRONG_INLINE constexpr bool region::contains(pointer start_, std::size_t size_) const noexcept
-    {
-        return (start_ >= start) && ((start_ + size_) <= (start + size));
-    }
-
-    template <typename T>
-    MEM_STRONG_INLINE constexpr bool region::contains(pointer address) const noexcept
-    {
-        return (address >= start) && ((address + sizeof(T)) <= (start + size));
-    }
-
-    MEM_STRONG_INLINE constexpr bool region::operator==(region rhs) const noexcept
-    {
-        return (start == rhs.start) && (size == rhs.size);
-    }
-
-    MEM_STRONG_INLINE constexpr bool region::operator!=(region rhs) const noexcept
-    {
-        return (start != rhs.start) || (size != rhs.size);
-    }
-
-    MEM_STRONG_INLINE void region::copy(pointer source) const noexcept
-    {
-        std::memcpy(start.as<void*>(), source.as<const void*>(), size);
-    }
-
-    MEM_STRONG_INLINE void region::fill(byte value) const noexcept
-    {
-        std::memset(start.as<void*>(), value, size);
-    }
-
-    MEM_STRONG_INLINE constexpr region region::sub_region(pointer address) const noexcept
-    {
-        return region(address, size - static_cast<std::size_t>(address - start));
     }
 
     template <typename T>

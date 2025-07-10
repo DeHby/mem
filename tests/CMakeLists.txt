@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 
 project(mem_tests CXX)
 
+include_directories(../include)
+
 file(GLOB MEM_HEADERS ../include/mem/*.h)
 
 add_executable(${PROJECT_NAME}

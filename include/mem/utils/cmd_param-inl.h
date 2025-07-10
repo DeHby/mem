@@ -27,7 +27,7 @@
 #    define CMD_ALLOC_BUFFER_CAPACITY 0x1000
 #endif
 
-#include "cmd_param.h"
+#include <mem/utils/cmd_param.h>
 
 #include <cctype>
 #include <cstring>

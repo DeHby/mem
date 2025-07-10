@@ -20,7 +20,7 @@
 #ifndef MEM_SIMD_SCANNER_BRICK_H
 #define MEM_SIMD_SCANNER_BRICK_H
 
-#include "pattern.h"
+#include <mem/scanning/pattern.h>
 
 #if !defined(MEM_SIMD_SCANNER_USE_MEMCHR)
 #    if defined(MEM_SIMD_AVX2)
@@ -33,7 +33,7 @@
 #endif
 
 #if !defined(MEM_SIMD_SCANNER_USE_MEMCHR)
-#    include "arch.h"
+#    include <mem/core/arch.h>
 #endif
 
 namespace mem
@@ -41,7 +41,6 @@ namespace mem
     class simd_scanner : public scanner_base<simd_scanner>
     {
     private:
-        const pattern* pattern_ {nullptr};
         std::size_t skip_pos_ {SIZE_MAX};
 
     public:
@@ -62,7 +61,7 @@ namespace mem
     {}
 
     inline simd_scanner::simd_scanner(const pattern& _pattern, const byte* frequencies)
-        : pattern_(&_pattern)
+        : scanner_base<simd_scanner>(_pattern)
         , skip_pos_(_pattern.get_skip_pos(frequencies))
     {}
 

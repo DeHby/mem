@@ -20,7 +20,7 @@
 #ifndef MEM_EXECUTION_HANDLER_BRICK_H
 #define MEM_EXECUTION_HANDLER_BRICK_H
 
-#include "defines.h"
+#include <mem/core/defines.h>
 
 #include <memory>
 #include <stdexcept>

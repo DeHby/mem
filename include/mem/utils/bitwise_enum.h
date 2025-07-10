@@ -20,7 +20,7 @@
 #ifndef MEM_BITWISE_ENUM_BRICK_H
 #define MEM_BITWISE_ENUM_BRICK_H
 
-#include "defines.h"
+#include <mem/core/defines.h>
 
 #include <type_traits>
 

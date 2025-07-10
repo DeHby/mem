@@ -20,9 +20,9 @@
 #ifndef MEM_MODULE_BRICK_H
 #define MEM_MODULE_BRICK_H
 
-#include "mem.h"
-#include "prot_flags.h"
-#include "slice.h"
+#include <mem/memory/mem.h>
+#include <mem/memory/prot_flags.h>
+#include <mem/containers/slice.h>
 
 #include <cstdio>
 #include <cstdlib>

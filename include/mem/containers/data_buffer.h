@@ -20,7 +20,7 @@
 #ifndef MEM_DATA_BUFFER_BRICK_H
 #define MEM_DATA_BUFFER_BRICK_H
 
-#include "defines.h"
+#include <mem/core/defines.h>
 
 #include <cstdlib>
 #include <cstring>

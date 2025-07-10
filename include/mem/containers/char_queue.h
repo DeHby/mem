@@ -20,7 +20,7 @@
 #ifndef MEM_CHAR_QUEUE_BRICK_H
 #define MEM_CHAR_QUEUE_BRICK_H
 
-#include "defines.h"
+#include <mem/core/defines.h>
 
 #include <cstring>
 

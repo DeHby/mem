@@ -20,7 +20,7 @@
 #ifndef MEM_ALIGNED_ALLOC_BRICK_H
 #define MEM_ALIGNED_ALLOC_BRICK_H
 
-#include "defines.h"
+#include <mem/core/defines.h>
 
 #include <memory>
 

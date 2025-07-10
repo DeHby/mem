@@ -20,8 +20,8 @@
 #ifndef MEM_PATTERN_CACHE_BRICK_H
 #define MEM_PATTERN_CACHE_BRICK_H
 
-#include "hasher.h"
-#include "pattern.h"
+#include <mem/hash/hasher.h>
+#include <mem/scanning/pattern.h>
 
 #include <unordered_map>
 

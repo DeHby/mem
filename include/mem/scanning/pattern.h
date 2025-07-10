@@ -1,4 +1,4 @@
-/*
+﻿/*
     Copyright 2018 Brick
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of this software
@@ -20,8 +20,8 @@
 #ifndef MEM_PATTERN_BRICK_H
 #define MEM_PATTERN_BRICK_H
 
-#include "char_queue.h"
-#include "mem.h"
+#include <mem/containers/char_queue.h>
+#include <mem/memory/mem.h>
 
 #include <string>
 #include <vector>
@@ -85,42 +85,42 @@ namespace mem
         int temp = -1;
 
         // clang-format off
-        current = input.peek();
-        if ((temp = xctoi(current)) != -1) { input.pop(); value = static_cast<byte>(temp); mask = 0xFF; }
-        else if (current == wildcard)      { input.pop(); value = 0x00;                    mask = 0x00; }
-        else                               { return false;                                              }
+		current = input.peek();
+		if ((temp = xctoi(current)) != -1) { input.pop(); value = static_cast<byte>(temp); mask = 0xFF; }
+		else if (current == wildcard) { input.pop(); value = 0x00;                    mask = 0x00; }
+		else { return false; }
 
-        current = input.peek();
-        if ((temp = xctoi(current)) != -1) { input.pop(); value = (value << 4) | static_cast<byte>(temp); mask = (mask << 4) | 0x0F; }
-        else if (current == wildcard)      { input.pop(); value = (value << 4);                           mask = (mask << 4);        }
+		current = input.peek();
+		if ((temp = xctoi(current)) != -1) { input.pop(); value = (value << 4) | static_cast<byte>(temp); mask = (mask << 4) | 0x0F; }
+		else if (current == wildcard) { input.pop(); value = (value << 4);                           mask = (mask << 4); }
 
-        if (input.peek() == '&')
-        {
-            input.pop();
+		if (input.peek() == '&')
+		{
+			input.pop();
 
-            byte expl_mask = 0xFF;
+			byte expl_mask = 0xFF;
 
-            if ((temp = xctoi(input.peek())) != -1) { input.pop(); expl_mask = static_cast<byte>(temp); }
-            else                                    { return false; }
+			if ((temp = xctoi(input.peek())) != -1) { input.pop(); expl_mask = static_cast<byte>(temp); }
+			else { return false; }
 
-            if ((temp = xctoi(input.peek())) != -1) { input.pop(); expl_mask = (expl_mask << 4) | static_cast<byte>(temp); }
+			if ((temp = xctoi(input.peek())) != -1) { input.pop(); expl_mask = (expl_mask << 4) | static_cast<byte>(temp); }
 
-            mask &= expl_mask;
-        }
+			mask &= expl_mask;
+		}
 
-        if (input.peek() == '#')
-        {
-            input.pop();
+		if (input.peek() == '#')
+		{
+			input.pop();
 
-            count = 0;
+			count = 0;
 
-            while (true)
-            {
-                if ((temp = dctoi(input.peek())) != -1) { input.pop(); count = (count * 10) + static_cast<std::size_t>(temp); }
-                else if (count > 0)                     { break;                                                              }
-                else                                    { return false;                                                       }
-            }
-        }
+			while (true)
+			{
+				if ((temp = dctoi(input.peek())) != -1) { input.pop(); count = (count * 10) + static_cast<std::size_t>(temp); }
+				else if (count > 0) { break; }
+				else { return false; }
+			}
+		}
         // clang-format on
 
         value &= mask;
@@ -398,14 +398,43 @@ namespace mem
     template <typename Scanner>
     class scanner_base
     {
+    protected:
+        const pattern* pattern_ {nullptr};
+
     public:
+        scanner_base() noexcept = default;
+        scanner_base(const pattern& pattern) noexcept;
+
+        bool is_ready() const;
+
+        std::size_t pattern_size() const;
+
         pointer operator()(region range) const;
 
         template <typename Func>
-        pointer operator()(region range, Func func) const;
+        pointer scan_all(region range, Func func) const;
 
         std::vector<pointer> scan_all(region range) const;
     };
+
+    template <typename Scanner>
+    using is_scanner = typename std::enable_if<std::is_base_of<scanner_base<Scanner>, Scanner>::value>::type;
+
+    template <typename Scanner>
+    scanner_base<Scanner>::scanner_base(const pattern& pattern) noexcept
+        : pattern_(&pattern) {};
+
+    template <typename Scanner>
+    bool scanner_base<Scanner>::is_ready() const
+    {
+        return pattern_ != nullptr;
+    }
+
+    template <typename Scanner>
+    std::size_t scanner_base<Scanner>::pattern_size() const
+    {
+        return pattern_ ? pattern_->size() : 0;
+    }
 
     template <typename Scanner>
     MEM_STRONG_INLINE pointer scanner_base<Scanner>::operator()(region range) const
@@ -415,7 +444,7 @@ namespace mem
 
     template <typename Scanner>
     template <typename Func>
-    inline pointer scanner_base<Scanner>::operator()(region range, Func func) const
+    inline pointer scanner_base<Scanner>::scan_all(region range, Func func) const
     {
         while (true)
         {
@@ -444,7 +473,7 @@ namespace mem
     {
         std::vector<pointer> results;
 
-        (*this)(range, [&results](pointer result) {
+        scan_all(range, [&results](pointer result) {
             results.emplace_back(result);
 
             return false;

@@ -20,15 +20,13 @@
 #ifndef MEM_BOYER_MOORE_SCANNER_BRICK_H
 #define MEM_BOYER_MOORE_SCANNER_BRICK_H
 
-#include "pattern.h"
+#include <mem/scanning/pattern.h>
 
 namespace mem
 {
     class boyer_moore_scanner : public scanner_base<boyer_moore_scanner>
     {
     private:
-        const pattern* pattern_ {nullptr};
-
         // Boyer–Moore + Boyer–Moore–Horspool Implementation
         std::vector<std::size_t> bc_skips_ {};
         std::vector<std::size_t> gs_skips_ {};
@@ -58,7 +56,7 @@ namespace mem
 
     inline boyer_moore_scanner::boyer_moore_scanner(
         const pattern& _pattern, std::size_t min_bc_skip, std::size_t min_gs_skip)
-        : pattern_(&_pattern)
+        : scanner_base<boyer_moore_scanner>(_pattern)
     {
         std::size_t max_skip = 0;
         std::size_t skip_pos = get_longest_run(max_skip);

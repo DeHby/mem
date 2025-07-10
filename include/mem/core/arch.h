@@ -20,7 +20,7 @@
 #ifndef MEM_ARCH_BRICK_H
 #define MEM_ARCH_BRICK_H
 
-#include "defines.h"
+#include <mem/core/defines.h>
 
 #if defined(MEM_ARCH_X86) || defined(MEM_ARCH_X86_64)
 #    if defined(_MSC_VER)

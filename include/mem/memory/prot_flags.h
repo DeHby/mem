@@ -20,8 +20,8 @@
 #ifndef MEM_PROT_FLAGS_BRICK_H
 #define MEM_PROT_FLAGS_BRICK_H
 
-#include "bitwise_enum.h"
-#include "defines.h"
+#include <mem/utils/bitwise_enum.h>
+#include <mem/core/defines.h>
 
 #if defined(_WIN32)
 #    if !defined(WIN32_LEAN_AND_MEAN)

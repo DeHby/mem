@@ -20,7 +20,7 @@
 #ifndef MEM_UTILS_BRICK_H
 #define MEM_UTILS_BRICK_H
 
-#include "mem.h"
+#include <mem/memory/mem.h>
 
 #include <string>
 #include <vector>

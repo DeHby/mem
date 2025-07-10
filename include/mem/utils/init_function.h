@@ -20,7 +20,7 @@
 #ifndef MEM_INIT_FUNCTION_BRICK_H
 #define MEM_INIT_FUNCTION_BRICK_H
 
-#include "defines.h"
+#include <mem/core/defines.h>
 
 namespace mem
 {

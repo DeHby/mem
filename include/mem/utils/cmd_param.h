@@ -20,12 +20,13 @@
 #ifndef MEM_CMD_PARAM_BRICK_H
 #define MEM_CMD_PARAM_BRICK_H
 
-#include "defines.h"
+#include <mem/core/defines.h>
 
 #include <cstdlib>
 
 #include <istream>
 #include <streambuf>
+#include <cstring>
 
 namespace mem
 {

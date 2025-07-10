@@ -20,7 +20,7 @@
 #ifndef MEM_STUB_BRICK_H
 #define MEM_STUB_BRICK_H
 
-#include "mem.h"
+#include <mem/memory/mem.h>
 
 #if defined(__cpp_lib_invoke) && (__cpp_lib_invoke >= 201411)
 #    include <functional>

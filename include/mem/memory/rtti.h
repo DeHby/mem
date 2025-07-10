@@ -20,7 +20,7 @@
 #ifndef MEM_RTTI_BRICK_H
 #define MEM_RTTI_BRICK_H
 
-#include "mem.h"
+#include <mem/memory/mem.h>
 
 #if defined(MEM_ARCH_X86) || defined(MEM_ARCH_X86_64)
 #    if !defined(_WIN32)
@@ -297,6 +297,6 @@ namespace mem
             return result;
         }
 #endif // MEM_RTTI_DEMANGLE
-    }  // namespace rtti
+    } // namespace rtti
 } // namespace mem
 #endif // !MEM_RTTI_BRICK_H

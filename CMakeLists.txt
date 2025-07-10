@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 
-option(MEM_TEST "Generate the test target." OFF)
+option(MEM_TEST "Generate the test target." ON)
 
 project(mem CXX)
 
