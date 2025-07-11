@@ -122,12 +122,12 @@ namespace mem
     }
 
     template <typename Scanner, typename... Args>
-    constexpr MEM_STRONG_INLINE auto memory_scanner::scan_default(Args&&... args)
+    MEM_STRONG_INLINE constexpr auto memory_scanner::scan_default(Args&&... args)
     {
         return get_default_scanner().scan<Scanner>(std::forward<Args>(args)...);
     }
 
-    constexpr MEM_STRONG_INLINE const data_accessor& memory_scanner::get_accessor() const
+    MEM_STRONG_INLINE constexpr const data_accessor& memory_scanner::get_accessor() const
     {
         return accessor_;
     }
