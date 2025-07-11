@@ -21,16 +21,10 @@ namespace mem
         memory_scanner(data_accessor& accessor);
 
         template <typename Scanner = boyer_moore_scanner, typename = is_scanner<Scanner>>
-        std::vector<pointer> scan(Scanner& scanner, const scan_config& config, size_t block_size = 4096) const;
+        std::vector<pointer> scan(Scanner& scanner, const scan_config& config) const;
 
-        template <typename Scanner = boyer_moore_scanner, typename = is_scanner<Scanner>>
-        auto scan(Scanner& scanner, prot_flags flags, size_t block_size = 4096) const;
-
-        template <typename Scanner = boyer_moore_scanner, typename = is_scanner<Scanner>>
-        auto scan(const pattern& pattern, const scan_config& config, size_t block_size = 4096) const;
-
-        template <typename Scanner = boyer_moore_scanner, typename = is_scanner<Scanner>>
-        auto scan(const pattern& pattern, prot_flags flags, size_t block_size = 4096) const;
+        template <typename Scanner = boyer_moore_scanner, typename... Args, typename = is_scanner<Scanner>>
+        auto scan(const scan_config& config, Args... args) const;
 
         template <typename Scanner = boyer_moore_scanner, typename... Args>
         static auto scan_default(Args&&... args);
@@ -41,7 +35,7 @@ namespace mem
     {}
 
     template <typename Scanner, typename>
-    std::vector<pointer> memory_scanner::scan(Scanner& scanner, const scan_config& config, size_t block_size) const
+    std::vector<pointer> memory_scanner::scan(Scanner& scanner, const scan_config& config) const
     {
         if (!scanner.is_ready())
         {
@@ -69,12 +63,12 @@ namespace mem
                 size_t scan_size = scan_end - scan_start;
 
                 size_t overlap = scanner.pattern_size() - 1;
-                std::vector<byte> buffer(block_size + overlap);
+                std::vector<byte> buffer(config.block_size + overlap);
                 region scan_region(buffer.data(), buffer.size());
 
-                for (size_t read_pos = scan_start; read_pos < scan_end; read_pos += block_size)
+                for (size_t read_pos = scan_start; read_pos < scan_end; read_pos += config.block_size)
                 {
-                    scan_region.size = std::min(block_size + overlap, scan_end - read_pos);
+                    scan_region.size = std::min(config.block_size + overlap, scan_end - read_pos);
                     if (!accessor_.read(reinterpret_cast<void*>(read_pos), buffer.data(), scan_region.size))
                         continue;
 
@@ -91,26 +85,11 @@ namespace mem
         return results;
     }
 
-    template <typename Scanner, typename>
-    auto memory_scanner::scan(Scanner& scanner, prot_flags flags, size_t block_size) const
+    template <typename Scanner, typename... Args, typename>
+    auto memory_scanner::scan(const scan_config& config, Args... args) const
     {
-        scan_config config(flags);
-        return scan<Scanner>(scanner, config, block_size);
-    }
-
-    template <typename Scanner, typename>
-    auto memory_scanner::scan(const pattern& pattern, const scan_config& config, size_t block_size) const
-    {
-        Scanner scanner(pattern);
-        return scan<Scanner>(scanner, config, block_size);
-    }
-
-    template <typename Scanner, typename>
-    auto memory_scanner::scan(const pattern& pattern, prot_flags flags, size_t block_size) const
-    {
-        Scanner scanner(pattern);
-        scan_config config(flags);
-        return scan<Scanner>(scanner, config, block_size);
+        Scanner scanner(std::forward<Args>(args)...);
+        return scan<Scanner>(scanner, config);
     }
 
     MEM_STRONG_INLINE memory_scanner& get_default_scanner()

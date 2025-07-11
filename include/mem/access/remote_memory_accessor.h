@@ -47,7 +47,7 @@ namespace mem
 
         bool read(void* src, void* dst, std::size_t size) const override;
 
-        bool write(void* dst, void* src, std::size_t size) const override;
+        bool write(void* src, void* dst, std::size_t size) const override;
 
         void* protect_alloc(std::size_t size, prot_flags flags) const override;
 

@@ -1,4 +1,4 @@
-#ifndef LOCAL_MEMORY_ACCESSOR_BRICK_H
+﻿#ifndef LOCAL_MEMORY_ACCESSOR_BRICK_H
 #define LOCAL_MEMORY_ACCESSOR_BRICK_H
 
 #if defined(_WIN32)
@@ -26,7 +26,7 @@ namespace mem
     public:
         bool read(void* src, void* dst, std::size_t size) const override;
 
-        bool write(void* dst, void* src, std::size_t size) const override;
+        bool write(void* src, void* dst, std::size_t size) const override;
 
         bool fill(void* dst, byte value, std::size_t size) const override;
 
@@ -49,15 +49,15 @@ namespace mem
     {
         if (!src || !dst || size == 0)
             return false;
-        std::memcpy(src, dst, size);
+        std::memcpy(dst, src, size);
         return true;
     }
 
-    bool local_memory_accessor::write(void* dst, void* src, std::size_t size) const
+    bool local_memory_accessor::write(void* src, void* dst, std::size_t size) const
     {
         if (!dst || !src || size == 0)
             return false;
-        std::memcpy(dst, src, size);
+        std::memcpy(src, dst, size);
         return true;
     }
 
