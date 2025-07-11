@@ -35,6 +35,8 @@ namespace mem
         constexpr region sub_region(pointer address) const noexcept;
     };
 
+    region query_region(void* addr, region_info& info, data_accessor& accessor = get_default_accessor());
+
     MEM_STRONG_INLINE constexpr region::region() noexcept = default;
 
     MEM_STRONG_INLINE region::region(const region_info& info)
@@ -83,6 +85,15 @@ namespace mem
     MEM_STRONG_INLINE constexpr region region::sub_region(pointer address) const noexcept
     {
         return region(address, size - static_cast<std::size_t>(address - start), flags);
+    }
+
+    MEM_STRONG_INLINE region query_region(void* addr, region_info& info, data_accessor& accessor)
+    {
+        if (accessor.query_region(addr, info))
+        {
+            return region(info);
+        }
+        return {};
     }
 } // namespace mem
 

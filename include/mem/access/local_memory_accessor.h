@@ -1,4 +1,23 @@
-﻿#ifndef LOCAL_MEMORY_ACCESSOR_BRICK_H
+﻿/*
+    Copyright 2025 DeHby
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+    and associated documentation files (the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute,
+    sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or
+    substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+    BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+    DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#ifndef LOCAL_MEMORY_ACCESSOR_BRICK_H
 #define LOCAL_MEMORY_ACCESSOR_BRICK_H
 
 #if defined(_WIN32)
@@ -17,7 +36,6 @@
 
 #include <mem/access/data_accessor.h>
 #include <mem/core/defines.h>
-#include <mem/memory/region.h>
 
 namespace mem
 {
@@ -45,7 +63,7 @@ namespace mem
         void free(void* addr) const override;
     };
 
-    bool local_memory_accessor::read(void* src, void* dst, std::size_t size) const
+    MEM_STRONG_INLINE bool local_memory_accessor::read(void* src, void* dst, std::size_t size) const
     {
         if (!src || !dst || size == 0)
             return false;
@@ -53,7 +71,7 @@ namespace mem
         return true;
     }
 
-    bool local_memory_accessor::write(void* src, void* dst, std::size_t size) const
+    MEM_STRONG_INLINE bool local_memory_accessor::write(void* src, void* dst, std::size_t size) const
     {
         if (!dst || !src || size == 0)
             return false;
@@ -61,13 +79,13 @@ namespace mem
         return true;
     }
 
-    bool local_memory_accessor::fill(void* dst, byte value, std::size_t size) const
+    MEM_STRONG_INLINE bool local_memory_accessor::fill(void* dst, byte value, std::size_t size) const
     {
         std::memset(dst, value, size);
         return true;
     }
 
-    void* local_memory_accessor::protect_alloc(std::size_t size, prot_flags flags) const
+    MEM_STRONG_INLINE void* local_memory_accessor::protect_alloc(std::size_t size, prot_flags flags) const
     {
 #if defined(_WIN32)
         return VirtualAlloc(nullptr, size, MEM_RESERVE | MEM_COMMIT, from_prot_flags(flags));
@@ -79,7 +97,7 @@ namespace mem
 #endif
     }
 
-    void local_memory_accessor::protect_free(void* addr, std::size_t size) const
+    MEM_STRONG_INLINE void local_memory_accessor::protect_free(void* addr, std::size_t size) const
     {
         if (addr)
         {
@@ -92,7 +110,7 @@ namespace mem
         }
     }
 
-    bool local_memory_accessor::query_region(void* addr, region_info& region) const
+    MEM_STRONG_INLINE bool local_memory_accessor::query_region(void* addr, region_info& region) const
     {
 #if defined(_WIN32)
         MEMORY_BASIC_INFORMATION info;
@@ -117,7 +135,7 @@ namespace mem
 #endif
     }
 
-    prot_flags local_memory_accessor::protect_query(void* addr) const
+    MEM_STRONG_INLINE prot_flags local_memory_accessor::protect_query(void* addr) const
     {
 #if defined(_WIN32)
         region_info region = {0};
@@ -138,7 +156,7 @@ namespace mem
 #endif
     }
 
-    bool local_memory_accessor::protect_modify(
+    MEM_STRONG_INLINE bool local_memory_accessor::protect_modify(
         void* addr, std::size_t size, prot_flags flags, prot_flags* old_flags) const
     {
         if (flags == prot_flags::INVALID)
@@ -160,12 +178,12 @@ namespace mem
 #endif
     }
 
-    void* local_memory_accessor::alloc(std::size_t size) const
+    MEM_STRONG_INLINE void* local_memory_accessor::alloc(std::size_t size) const
     {
         return std::malloc(size);
     }
 
-    void local_memory_accessor::free(void* addr) const
+    MEM_STRONG_INLINE void local_memory_accessor::free(void* addr) const
     {
         if (!addr)
             return;

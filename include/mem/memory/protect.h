@@ -20,9 +20,9 @@
 #ifndef MEM_PROTECT_BRICK_H
 #define MEM_PROTECT_BRICK_H
 
-#include <mem/memory/region.h>
-#include <mem/memory/prot_flags.h>
 #include <mem/access/local_memory_accessor.h>
+#include <mem/memory/prot_flags.h>
+#include <mem/memory/region.h>
 
 #include <cstdio>
 

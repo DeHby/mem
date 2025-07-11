@@ -21,7 +21,9 @@
 #define MEM_PATTERN_BRICK_H
 
 #include <mem/containers/char_queue.h>
+
 #include <mem/memory/mem.h>
+#include <mem/memory/region.h>
 
 #include <string>
 #include <vector>
@@ -50,6 +52,7 @@ namespace mem
         };
 
         explicit pattern(const char* string, wildcard_t wildcard = static_cast<wildcard_t>('?'));
+        explicit pattern(const std::string& string, wildcard_t wildcard = static_cast<wildcard_t>('?'));
         explicit pattern(const void* bytes, const char* masks, wildcard_t wildcard = static_cast<wildcard_t>('?'));
 
         explicit pattern(const void* bytes, const void* masks, std::size_t length);
@@ -158,6 +161,10 @@ namespace mem
 
         finalize();
     }
+
+    inline pattern::pattern(const std::string& string, wildcard_t wildcard)
+        : pattern(string.data(), wildcard)
+    {}
 
     inline pattern::pattern(const void* bytes, const char* mask, wildcard_t wildcard)
     {
