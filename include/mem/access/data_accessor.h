@@ -31,8 +31,8 @@ namespace mem
 {
     class data_accessor;
 
-    template <typename accessor>
-    using is_accessor = typename std::enable_if<std::is_base_of<data_accessor, accessor>::value>::type;
+    template <typename Accessor>
+    using is_accessor = typename std::enable_if<std::is_base_of<data_accessor, std::decay_t<Accessor>>::value>::type;
 
     class data_accessor
     {

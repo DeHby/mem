@@ -41,11 +41,13 @@ namespace mem
     public:
         constexpr memory_scanner(data_accessor& accessor);
 
-        template <typename Scanner = boyer_moore_scanner, typename = is_scanner<Scanner>>
-        std::vector<pointer> scan(Scanner& scanner, const scan_config& config) const;
+        template <typename Scanner = boyer_moore_scanner, typename Config, typename = is_scanner<Scanner>,
+            typename = is_scan_config<Config>>
+        std::vector<pointer> scan(Scanner&& scanner, Config&& config) const;
 
-        template <typename Scanner = boyer_moore_scanner, typename... Args, typename = is_scanner<Scanner>>
-        auto scan(const scan_config& config, Args... args) const;
+        template <typename Scanner = boyer_moore_scanner, typename... Args, typename Config,
+            typename = is_scanner<Scanner>, typename = is_scan_config<Config>>
+        auto scan(Config&& config, Args&&... args) const;
 
         template <typename Scanner = boyer_moore_scanner, typename... Args>
         constexpr static auto scan_default(Args&&... args);
@@ -57,9 +59,14 @@ namespace mem
         : accessor_(accessor)
     {}
 
-    template <typename Scanner, typename>
-    MEM_STRONG_INLINE std::vector<pointer> memory_scanner::scan(Scanner& scanner, const scan_config& config) const
+    template <typename Scanner, typename Config, typename, typename>
+    MEM_STRONG_INLINE std::vector<pointer> memory_scanner::scan(Scanner&& scanner, Config&& config) const
     {
+        using ScannerT = std::decay_t<Scanner>;
+        using ConfigT = std::decay_t<Config>;
+
+        static_assert(std::is_same_v<ConfigT, scan_config>, "Expected scan_config type for config");
+
         if (!scanner.is_ready())
         {
             return {};
@@ -108,11 +115,11 @@ namespace mem
         return results;
     }
 
-    template <typename Scanner, typename... Args, typename>
-    MEM_STRONG_INLINE auto memory_scanner::scan(const scan_config& config, Args... args) const
+    template <typename Scanner, typename... Args, typename Config, typename, typename>
+    MEM_STRONG_INLINE auto memory_scanner::scan(Config&& config, Args&&... args) const
     {
         Scanner scanner(std::forward<Args>(args)...);
-        return scan<Scanner>(scanner, config);
+        return scan<Scanner>(std::move(scanner), std::forward<Config>(config));
     }
 
     MEM_STRONG_INLINE memory_scanner& get_default_scanner()

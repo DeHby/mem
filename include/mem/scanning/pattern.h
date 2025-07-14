@@ -425,7 +425,8 @@ namespace mem
     };
 
     template <typename Scanner>
-    using is_scanner = typename std::enable_if<std::is_base_of<scanner_base<Scanner>, Scanner>::value>::type;
+    using is_scanner = typename std::enable_if<
+        std::is_base_of<scanner_base<std::decay_t<Scanner>>, std::decay_t<Scanner>>::value>::type;
 
     template <typename Scanner>
     scanner_base<Scanner>::scanner_base(const pattern& pattern) noexcept

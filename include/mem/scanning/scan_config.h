@@ -61,6 +61,10 @@ namespace mem
             , block_size(block_size_)
         {}
     };
+
+    template <typename ScanConfig>
+    using is_scan_config = typename std::enable_if<
+        std::is_base_of<scan_config, std::decay_t<ScanConfig>>::value>::type;
 } // namespace mem
 
 #endif // SCAN_CONFIG_H
