@@ -27,16 +27,17 @@
 
 namespace mem
 {
+    constexpr auto scan_default_block_size = 512 * 1024;
     struct scan_config
     {
         void* start;
         void* end;
-        prot_flags flags;
-        std::size_t block_size = 4096;
+        prot_flags flags = prot_flags::NONE;
+        std::size_t block_size = 0;
 
         constexpr scan_config(prot_flags flags_, void* start_ = nullptr,
             void* end_ = reinterpret_cast<void*>(std::numeric_limits<std::uintptr_t>::max()),
-            std::size_t block_size_ = 4096)
+            std::size_t block_size_ = scan_default_block_size)
             : start(start_)
             , end(end_)
             , flags(flags_)
@@ -44,7 +45,7 @@ namespace mem
         {}
 
         inline scan_config(std::uintptr_t start_, std::uintptr_t end_ = std::numeric_limits<std::uintptr_t>::max(),
-            prot_flags flags_ = prot_flags::RW, std::size_t block_size_ = 4096)
+            prot_flags flags_ = prot_flags::RW, std::size_t block_size_ = scan_default_block_size)
             : start(reinterpret_cast<void*>(start_))
             , end(reinterpret_cast<void*>(end_))
             , flags(flags_)
@@ -53,7 +54,7 @@ namespace mem
 
         constexpr scan_config(void* start_,
             void* end_ = reinterpret_cast<void*>(std::numeric_limits<std::uintptr_t>::max()),
-            prot_flags flags_ = prot_flags::RW, std::size_t block_size_ = 4096)
+            prot_flags flags_ = prot_flags::RW, std::size_t block_size_ = scan_default_block_size)
             : start(start_)
             , end(end_)
             , flags(flags_)
