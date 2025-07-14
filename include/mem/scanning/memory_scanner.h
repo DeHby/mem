@@ -124,7 +124,7 @@ namespace mem
 
     MEM_STRONG_INLINE memory_scanner& get_default_scanner()
     {
-        static memory_scanner instance(get_default_accessor());
+        static memory_scanner instance(current_process_accessor::get_instance());
         return instance;
     }
 

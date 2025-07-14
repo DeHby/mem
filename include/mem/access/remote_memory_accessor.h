@@ -214,6 +214,12 @@ namespace mem
         MEM_STRONG_INLINE current_process_accessor()
             : remote_memory_accessor(::GetCurrentProcess(), false)
         {}
+
+        MEM_STRONG_INLINE static current_process_accessor& get_instance()
+        {
+            static current_process_accessor accessor;
+            return accessor;
+        }
     };
 
 } // namespace mem
