@@ -88,7 +88,7 @@ namespace mem
     MEM_STRONG_INLINE void* local_memory_accessor::protect_alloc(std::size_t size, prot_flags flags) const
     {
 #if defined(_WIN32)
-        return VirtualAlloc(nullptr, size, MEM_RESERVE | MEM_COMMIT, from_prot_flags(flags));
+        return ::VirtualAlloc(nullptr, size, MEM_RESERVE | MEM_COMMIT, from_prot_flags(flags));
 #elif defined(__unix__)
         void* result = mmap(nullptr, size, from_prot_flags(flags), MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         if (result == MAP_FAILED)
@@ -114,7 +114,7 @@ namespace mem
     {
 #if defined(_WIN32)
         MEMORY_BASIC_INFORMATION info;
-        if (VirtualQuery(addr, &info, sizeof(info)) != 0)
+        if (::VirtualQuery(addr, &info, sizeof(info)) != 0)
         {
             region.start = info.BaseAddress;
             region.size = info.RegionSize;

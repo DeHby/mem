@@ -83,18 +83,18 @@ namespace mem
         void free(void* addr) const override;
     };
 
-    constexpr remote_memory_accessor::remote_memory_accessor(HANDLE handle, bool owns)
+    MEM_STRONG_INLINE constexpr remote_memory_accessor::remote_memory_accessor(HANDLE handle, bool owns)
         : process_handle_(handle)
         , owns_handle_(owns)
     {}
 
-    remote_memory_accessor::~remote_memory_accessor()
+    MEM_STRONG_INLINE remote_memory_accessor::~remote_memory_accessor()
     {
         if (owns_handle_ && process_handle_ && process_handle_ != INVALID_HANDLE_VALUE)
             CloseHandle(process_handle_);
     }
 
-    remote_memory_accessor::remote_memory_accessor(remote_memory_accessor&& other) noexcept
+    MEM_STRONG_INLINE remote_memory_accessor::remote_memory_accessor(remote_memory_accessor&& other) noexcept
         : process_handle_(other.process_handle_)
         , owns_handle_(other.owns_handle_)
     {
@@ -102,7 +102,7 @@ namespace mem
         other.owns_handle_ = false;
     }
 
-    remote_memory_accessor& remote_memory_accessor::operator=(remote_memory_accessor&& other) noexcept
+    MEM_STRONG_INLINE remote_memory_accessor& remote_memory_accessor::operator=(remote_memory_accessor&& other) noexcept
     {
         if (this != &other)
         {
@@ -118,27 +118,27 @@ namespace mem
         return *this;
     }
 
-    remote_memory_accessor remote_memory_accessor::create(DWORD pid)
+    MEM_STRONG_INLINE remote_memory_accessor remote_memory_accessor::create(DWORD pid)
     {
-        HANDLE h = OpenProcess(PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, FALSE, pid);
+        HANDLE h = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
         if (h == NULL)
             throw std::runtime_error("Failed to open process handle");
         return remote_memory_accessor(h, true);
     }
 
-    remote_memory_accessor remote_memory_accessor::create(HANDLE handle)
+    MEM_STRONG_INLINE remote_memory_accessor remote_memory_accessor::create(HANDLE handle)
     {
         if (!handle || handle == INVALID_HANDLE_VALUE)
             throw std::invalid_argument("Invalid process handle");
         return remote_memory_accessor(handle);
     }
 
-    HANDLE remote_memory_accessor::handle() const
+    MEM_STRONG_INLINE HANDLE remote_memory_accessor::handle() const
     {
         return process_handle_;
     }
 
-    bool remote_memory_accessor::read(void* src, void* dst, std::size_t size) const
+    MEM_STRONG_INLINE bool remote_memory_accessor::read(void* src, void* dst, std::size_t size) const
     {
         if (!src || !dst || size == 0)
             return false;
@@ -146,7 +146,7 @@ namespace mem
         return ::ReadProcessMemory(process_handle_, src, dst, size, &bytesRead) && bytesRead == size;
     }
 
-    bool remote_memory_accessor::write(void* dst, void* src, std::size_t size) const
+    MEM_STRONG_INLINE bool remote_memory_accessor::write(void* dst, void* src, std::size_t size) const
     {
         if (!dst || !src || size == 0)
             return false;
@@ -154,17 +154,17 @@ namespace mem
         return ::WriteProcessMemory(process_handle_, dst, src, size, &bytesWritten) && bytesWritten == size;
     }
 
-    void* remote_memory_accessor::protect_alloc(std::size_t size, prot_flags flags) const
+    MEM_STRONG_INLINE void* remote_memory_accessor::protect_alloc(std::size_t size, prot_flags flags) const
     {
-        return VirtualAllocEx(process_handle_, NULL, size, MEM_COMMIT | MEM_RESERVE, from_prot_flags(flags));
+        return ::VirtualAllocEx(process_handle_, NULL, size, MEM_COMMIT | MEM_RESERVE, from_prot_flags(flags));
     }
 
-    void remote_memory_accessor::protect_free(void* addr, std::size_t size) const
+    MEM_STRONG_INLINE void remote_memory_accessor::protect_free(void* addr, std::size_t size) const
     {
-        VirtualFreeEx(process_handle_, addr, 0, MEM_RELEASE);
+        ::VirtualFreeEx(process_handle_, addr, 0, MEM_RELEASE);
     }
 
-    bool remote_memory_accessor::query_region(void* addr, region_info& region) const
+    MEM_STRONG_INLINE bool remote_memory_accessor::query_region(void* addr, region_info& region) const
     {
         MEMORY_BASIC_INFORMATION info;
         if (::VirtualQueryEx(process_handle_, addr, &info, sizeof(info)) != 0)
@@ -177,7 +177,7 @@ namespace mem
         return false;
     }
 
-    prot_flags remote_memory_accessor::protect_query(void* addr) const
+    MEM_STRONG_INLINE prot_flags remote_memory_accessor::protect_query(void* addr) const
     {
         region_info info = {};
         if (query_region(addr, info))
@@ -186,7 +186,7 @@ namespace mem
             return prot_flags::INVALID;
     }
 
-    bool remote_memory_accessor::protect_modify(
+    MEM_STRONG_INLINE bool remote_memory_accessor::protect_modify(
         void* addr, std::size_t size, prot_flags flags, prot_flags* old_flags) const
     {
         if (flags == prot_flags::INVALID)
@@ -198,12 +198,12 @@ namespace mem
         return success;
     }
 
-    void* remote_memory_accessor::alloc(std::size_t size) const
+    MEM_STRONG_INLINE void* remote_memory_accessor::alloc(std::size_t size) const
     {
         return protect_alloc(size, mem::prot_flags::RW);
     }
 
-    void remote_memory_accessor::free(void* addr) const
+    MEM_STRONG_INLINE void remote_memory_accessor::free(void* addr) const
     {
         return protect_free(addr, 0);
     }
@@ -211,7 +211,7 @@ namespace mem
     class current_process_accessor : public remote_memory_accessor
     {
     public:
-        current_process_accessor()
+        MEM_STRONG_INLINE current_process_accessor()
             : remote_memory_accessor(::GetCurrentProcess(), false)
         {}
     };
