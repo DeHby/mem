@@ -65,8 +65,6 @@ namespace mem
         using ScannerT = std::decay_t<Scanner>;
         using ConfigT = std::decay_t<Config>;
 
-        static_assert(std::is_same_v<ConfigT, scan_config>, "Expected scan_config type for config");
-
         if (!scanner.is_ready())
         {
             return {};
