@@ -65,12 +65,19 @@ namespace mem
         using ScannerT = std::decay_t<Scanner>;
         using ConfigT = std::decay_t<Config>;
 
+        static_assert(std::is_same_v<ConfigT, scan_config>, "Expected scan_config type for config");
+
         if (!scanner.is_ready())
         {
             return {};
         }
 
         std::vector<pointer> results;
+
+        size_t overlap = scanner.pattern_size() - 1;
+        std::vector<byte> buffer(config.block_size + overlap);
+        region scan_region(buffer.data(), buffer.size());
+
         void* current = config.start;
 
         while (current < config.end)
@@ -89,10 +96,6 @@ namespace mem
                 size_t scan_start = std::max(reinterpret_cast<size_t>(current), base_address);
                 size_t scan_end = std::min(reinterpret_cast<size_t>(config.end), base_address + region_size);
                 size_t scan_size = scan_end - scan_start;
-
-                size_t overlap = scanner.pattern_size() - 1;
-                std::vector<byte> buffer(config.block_size + overlap);
-                region scan_region(buffer.data(), buffer.size());
 
                 for (size_t read_pos = scan_start; read_pos < scan_end; read_pos += config.block_size)
                 {
