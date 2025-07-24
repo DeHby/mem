@@ -62,11 +62,6 @@ namespace mem
     template <typename Scanner, typename Config, typename, typename>
     MEM_STRONG_INLINE std::vector<pointer> memory_scanner::scan(Scanner&& scanner, Config&& config) const
     {
-        using ScannerT = std::decay_t<Scanner>;
-        using ConfigT = std::decay_t<Config>;
-
-        static_assert(std::is_same_v<ConfigT, scan_config>, "Expected scan_config type for config");
-
         if (!scanner.is_ready())
         {
             return {};
